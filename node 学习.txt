@@ -1,0 +1,17 @@
+1. 在终端启动项目app.js,使用node app.js;
+2. 数据库mongoose的学习：
+	2.1 Schema - 模式定义；== 定义字段
+	2.2 Model  - 编译模型；== 通过编译，生成构造函数
+	2.3 Documents - 文档实例化 == 实例化需要调用构造好的构造函数
+		2.3.1 存入数据库：save方法；
+		2.3.2 数据库批量查询：find({});
+		2.3.3 单条数据查询；findOne({_id:id});
+		2.3.4 单条删除；remove({_id:id});
+3.新建.bowerrc文件，里面写入{"directory":"public/libs"},即可指定bower在此路径中安装插件；
+
+
+问题：
+1. 编译生成movie模型 (这里需思考一个问题，为什么模型是Movie，怎么和数据库的movies集合联系起来的)
+var Movie = mongoose.model('Movie', MovieSchema);
+
+1.问题解决：终于闹明白这个问题了，这里的模型也就是集合，如果数据库里没有这个集合，就会新创建一个集合，在mongodb里刷新查找即可
