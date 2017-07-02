@@ -1,21 +1,28 @@
 {
-  "name": "learn-node",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "body-parser": "^1.17.2",
-    "express": "^4.15.3",
-    "jade": "^1.11.0",
-    "moment": "^2.18.1",
-    "mongoose": "^4.10.8",
-    "pug": "^2.0.0-rc.2",
-    "pug-cli": "^1.0.0-alpha6",
-    "underscore": "^1.8.3"
-  }
+    "name": "learn-node",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^1.0.2",
+        "body-parser": "^1.17.2",
+        "express": "^4.15.3",
+        "jade": "^1.11.0",
+        "moment": "^2.18.1",
+        "mongoose": "^4.10.8",
+        "pug": "^2.0.0-rc.2",
+        "pug-cli": "^1.0.0-alpha6",
+        "underscore": "^1.8.3"
+    },
+    "devDependencies": {
+        "grunt": "^1.0.1",
+        "grunt-concurrent": "^2.3.1",
+        "grunt-contrib-nodemon": "^0.5.4",
+        "grunt-contrib-watch": "^1.0.0"
+    }
 }

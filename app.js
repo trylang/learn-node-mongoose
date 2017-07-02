@@ -13,9 +13,11 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://127.0.0.1:27017/imooc');
 
 var Movie = require('./models/movie.js');
+var User = require('./models/user');
 
 //注入其他插件
 var _ = require('underscore');
+var bcrypt = require('bcrypt'); //文件加密工具模块
 
 app.locals.moment = require('moment');
 
@@ -51,6 +53,62 @@ app.get('/', function(req, res) {
 
     });
 
+});
+
+//signup
+app.post('/user/signup', function(req, res) {
+    var _user = req.body.user;
+    var user = new User(_user);
+
+    user.save(function(err, user) {
+        if (err) {
+            console.log(err);
+        }
+        res.redirect('/admin/userlist');
+    });
+});
+
+//signin
+app.post('/user/signin', function(req, res) {
+    console.log(req.body);
+    var _user = req.body.user;
+    var name = _user.name;
+    var password = _user.password;
+
+    User.findOne({
+        name: name
+    }, function(err, user) {
+        if (err) {
+            console.log(err);
+        }
+        if (!user) {
+            return res.redirect('/');
+        }
+        user.comparePassword(password, function(err, isMatch) {
+            if (err) {
+                console.log(err);
+            }
+            if (isMatch) {
+                return res.redirect('/');
+            } else {
+                console.log('Password is not matched');
+            }
+        });
+    });
+
+});
+
+//用户列表
+app.get('/admin/userlist', function(req, res) {
+    User.fetch(function(err, users) {
+        if (err) {
+            console.log(err);
+        }
+        res.render('userlist', {
+            title: '用户列表页',
+            users: users
+        });
+    });
 });
 
 //detail page 详情页

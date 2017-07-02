@@ -8,6 +8,24 @@
 		2.3.3 单条数据查询；findOne({_id:id});
 		2.3.4 单条删除；remove({_id:id});
 3.新建.bowerrc文件，里面写入{"directory":"public/libs"},即可指定bower在此路径中安装插件；
+4.req.params在express中的默认规则：
+	4.1 express req.param() =  req.params +  req.body +  req.query；
+	4.2 req.param('id')，按顺序获取
+			===》req.params，从路由中获取参数
+			===》req.body，拿到表单中的数据
+			===》req.query，获取url中？后的数据
+
+	举例：req.param在express中的默认规则是
+		 	/user/signup/1111?userid=1112
+		 	{ userid: 1113 }
+			优先从路由中获取参数 即1111，
+			其次路由中无参数，则提交的表单中获取参数，即 1113
+			最后上述二者均无时，从url的？后查询参数中获取，即1112
+
+			req.param('user') 获取顺序
+			req.params，从路由中获取参数
+			req.body,从提交的表单中获取参数
+			req.query，从url的?中获取参数
 
 
 问题：
@@ -15,3 +33,36 @@
 var Movie = mongoose.model('Movie', MovieSchema);
 
 1.问题解决：终于闹明白这个问题了，这里的模型也就是集合，如果数据库里没有这个集合，就会新创建一个集合，在mongodb里刷新查找即可
+
+2. 踩坑 ：Error: listen EADDRINUSE :::3000
+2.问题解决：这是端口被其他进程占用的结果，试图关闭所有窗口，终端无果之后，只好找最根源的解决办法。
+	2.1 管理员 查看具体端口号进程情况：sudo lsof -i :3000
+	会出现终端结果如下：HarveydeMac-mini:~ harvey$ sudo lsof -i :3000
+					COMMAND   PID   USER   FD   TYPE   DEVICE SIZE/OFF NODE NAME
+					node    20771 harvey   17u  IPv4 0x56e527dafba04d5 0t0  TCP *:hbci (LISTEN)
+	COMMAND 表示使用该端口的进程的名称，这里很明显是node 使用了3000端口。 
+    PID 比较关键，代表使用该端口的进程号。 
+    (LISTEN) 代表该进程正处于监听状态，即该进程活跃着呢。
+
+    2.2 查看使用某端口的进程：sudo lsof -i tcp:3000 | grep LISTEN；
+    2.3 关闭某进程的命令：sudo kill -9 PID
+    	例如：关掉使用3000端口的node进程：sudo kill -9 20771 
+
+3.踩坑：Fatal error: Port 35729 is already in use by another process.
+3.问题解决：Dont stop a process with Ctrl+C in the terminal.
+  		   Ctrl+Z will keep it running.
+		   Find the process id by sudo lsof -i :35729
+		   Then kill the process by sudo kill -9 PID
+		   Rerun the grunt watch
+
+4.问题：express4如何获取post的参数，且知道req.body.user，body后面的值是user而不是user2或者不是别的值呢？
+
+
+
+5.在登录中：User的实例和静态方法有何区别？为何可以在User的findOne方法回调中调用user的实例方法？
+
+
+
+
+
+
