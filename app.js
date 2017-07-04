@@ -3,6 +3,7 @@ var app = express();
 //1.process.env.PORT指的是环境变量中保存的默认端口号，如可以使用下面命令指定端口号：PORT=8080 node app.js
 var port = process.env.PORT || 3000;
 var path = require('path');
+var dbUrl = 'mongodb://127.0.0.1:27017/imooc';
 
 //找静态资源，就去bower下
 app.use(express.static(path.join(__dirname, 'public')));
@@ -10,13 +11,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 //添加mongoose 服务
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://127.0.0.1:27017/imooc');
+mongoose.connect(dbUrl);
 
-var Movie = require('./models/movie.js');
-var User = require('./models/user');
 
 //注入其他插件
-var _ = require('underscore');
 var bcrypt = require('bcrypt'); //文件加密工具模块
 
 app.locals.moment = require('moment');
@@ -31,6 +29,31 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+//设置登录状态持久性
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+
+
+//1.因为现在session和cookieparser没有包含在express里面了，所以要单独安装这两个模块
+//然后把var mongoStore = require('connect-mongo')(express);
+//替换成var mongoStore = require('connect-mongo')(session);
+//2.var mongoStore = require('connect-mongo')(session);
+//这一句前面一定要有 var session = require("express-session")
+//3.持久化会话需要用到这个中间件，还需要在session中配置store
+var mongoStore = require('connect-mongo')(session);
+app.use(cookieParser());
+app.use(session({
+    secret: 'imooc',
+    resave: false,
+    saveUninitialized: true,
+    store: new mongoStore({
+        url: dbUrl,
+        collection: 'session'
+    })
+}));
+
+//引入路由的入口文件
+require('./config/routes')(app);
 
 var server = app.listen(port, function() {
     var host = server.address().address;
@@ -39,173 +62,7 @@ var server = app.listen(port, function() {
 
 });
 
-//配置路由
-app.get('/', function(req, res) {
 
-    Movie.fetch(function(err, returnObj) {
-        if (err) {
-            console.log(err);
-        }
-        res.render('index', {
-            title: 'TRY 首页',
-            movies: returnObj
-        });
-
-    });
-
-});
-
-//signup
-app.post('/user/signup', function(req, res) {
-    var _user = req.body.user;
-    var user = new User(_user);
-
-    user.save(function(err, user) {
-        if (err) {
-            console.log(err);
-        }
-        res.redirect('/admin/userlist');
-    });
-});
-
-//signin
-app.post('/user/signin', function(req, res) {
-    console.log(req.body);
-    var _user = req.body.user;
-    var name = _user.name;
-    var password = _user.password;
-
-    User.findOne({
-        name: name
-    }, function(err, user) {
-        if (err) {
-            console.log(err);
-        }
-        if (!user) {
-            return res.redirect('/');
-        }
-        user.comparePassword(password, function(err, isMatch) {
-            if (err) {
-                console.log(err);
-            }
-            if (isMatch) {
-                return res.redirect('/');
-            } else {
-                console.log('Password is not matched');
-            }
-        });
-    });
-
-});
-
-//用户列表
-app.get('/admin/userlist', function(req, res) {
-    User.fetch(function(err, users) {
-        if (err) {
-            console.log(err);
-        }
-        res.render('userlist', {
-            title: '用户列表页',
-            users: users
-        });
-    });
-});
-
-//detail page 详情页
-app.get('/movie/:id', function(req, res) {
-    var id = req.params.id;
-    Movie.findById(id, function(err, returnObj) {
-        if (err) {
-            console.log(err);
-        }
-        res.render('detail', {
-            title: 'TRY 详情页',
-            movie: returnObj
-        });
-    });
-
-});
-
-// admin page 后台录入页
-app.get('/admin/movie', function(req, res) {
-    res.render('admin', {
-        title: 'TRY 后台录入页',
-        movie: {
-            title: '机械战警',
-            doctor: '何塞·帕迪利亚',
-            country: '美国',
-            year: 2017,
-            poster: 'http://r3.ykimg.com/05160000530EEB63675839160D0B79D5',
-            flash: 'http://player.youku.com/player.php/sid/XNjA1Njc0NTUy/v.swf',
-            summary: '哈哈，科幻经典呀',
-            language: '英语'
-        }
-    });
-});
-
-//admin post 后台录入提交
-//在提交的时候踩的坑，原来下面if的判断是这样写的if(id !=='undifined');一直会报错：CastError: Cast to ObjectId failed for value "" at path "_id"
-//改成''就好了，是因为id的数据类型是空，所以写成'undefined'肯定不对
-app.post('/admin/movie/new', function(req, res) {
-    var id = req.body.movie._id;
-    var movieObj = req.body.movie;
-    var _movie = null;
-
-    if (id !== '') { //已存在数据（踩坑地方）
-        Movie.findById(id, function(err, returnObj) {
-            if (err) {
-                console.log(err);
-            }
-            _movie = _.extend(returnObj, movieObj);
-            _movie.save(function(err, movie) {
-                res.redirect('/movie/' + movie._id);
-            });
-        });
-    } else { //新加的数据
-        _movie = new Movie({
-            doctor: movieObj.doctor,
-            title: movieObj.title,
-            country: movieObj.country,
-            language: movieObj.language,
-            year: movieObj.year,
-            poster: movieObj.poster,
-            summary: movieObj.summary,
-            flash: movieObj.flash
-        });
-        _movie.save(function(err, movie) {
-            if (err) {
-                console.log(err);
-            }
-            res.redirect('/movie/' + movie._id);
-        });
-    }
-});
-
-//admin 后台更新页
-app.get('/admin/update/:id', function(req, res) {
-    var id = req.params.id;
-    if (id) {
-        Movie.findById(id, function(err, returnObj) {
-            res.render('admin', {
-                title: 'TRY 后台更新页',
-                movie: returnObj
-            });
-        });
-    }
-});
-
-//list 列表页
-app.get('/admin/list', function(req, res) {
-    Movie.fetch(function(err, returnObj) {
-        if (err) {
-            console.log(err);
-        }
-        res.render('list', {
-            title: 'TRY 列表页',
-            movies: returnObj
-        });
-    });
-});
 
 //列表页删除
 app.delete('/admin/list', function(req, res) {
