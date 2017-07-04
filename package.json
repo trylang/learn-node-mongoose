@@ -18,6 +18,7 @@
         "jade": "^1.11.0",
         "moment": "^2.18.1",
         "mongoose": "^4.10.8",
+        "morgan": "^1.8.2",
         "pug": "^2.0.0-rc.2",
         "pug-cli": "^1.0.0-alpha6",
         "underscore": "^1.8.3"

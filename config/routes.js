@@ -201,4 +201,22 @@ module.exports = function(app) {
             });
         });
     });
+
+    //列表页删除
+    app.delete('/admin/list', function(req, res) {
+        var id = req.query.id;
+        if (id) {
+            Movie.remove({
+                _id: id
+            }, function(err, movie) {
+                if (err) {
+                    console.log(err);
+                }
+                res.json({
+                    success: 1
+                });
+            });
+        }
+    });
+
 };

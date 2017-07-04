@@ -62,21 +62,13 @@ var server = app.listen(port, function() {
 
 });
 
-
-
-//列表页删除
-app.delete('/admin/list', function(req, res) {
-    var id = req.query.id;
-    if (id) {
-        Movie.remove({
-            _id: id
-        }, function(err, movie) {
-            if (err) {
-                console.log(err);
-            }
-            res.json({
-                success: 1
-            });
-        });
-    }
-});
+//开发环境配置
+var logger = require('morgan');
+if ('development' === app.get('env')) {
+    app.set('showStackErro', true); //显示错误信息
+    //express.logger 中间件已经独立
+    // app.use(express.logger(':method :url :status')); //打印express路由的信息并预置格式
+    app.use(logger(':method :url :status')); //打印express路由的信息并预置格式
+    app.locals.pretty = true; //设置网页源码格式为非压缩，可读
+    mongoose.set('debug', true); //打开mongoDb调试模式
+}

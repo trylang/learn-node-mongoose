@@ -79,3 +79,5 @@ var Movie = mongoose.model('Movie', MovieSchema);
 9.不明白的地方：在首页中显示本地用户信息，为啥存到app.locals.user中就可显示用户信息？
 
 10.不明白的地方：为什么在用户登录预处理的地方，需要使用app.use,而不是app的其他用法，而且next返回的啥？
+
+11.不明白的地方：为什么 app.get('env') ，可以获取到是什么环境？知道等于'development'
