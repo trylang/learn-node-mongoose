@@ -20,7 +20,7 @@ var bcrypt = require('bcrypt'); //文件加密工具模块
 app.locals.moment = require('moment');
 
 //设置视图的根目录，以及默认的模版引擎
-app.set('views', './views/pages');
+app.set('views', './app/views/pages');
 app.set('view engine', 'pug');
 
 //bodyParser中间件用来解析http请求体，是express默认使用的中间件之一
