@@ -24,6 +24,10 @@ module.exports = function(app) {
     //User
     app.post('/user/signup', User.signup);
     app.post('/user/signin', User.signin);
+    // app.post('/signin', User.showSignin);
+    // app.post('/signup', User.showSignup);
+    app.get('/signin', User.showSignin);
+    app.get('/signup', User.showSignup);
     app.get('/logout', User.logout);
     app.get('/admin/userlist', User.list);
 

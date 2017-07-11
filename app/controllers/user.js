@@ -24,13 +24,15 @@ exports.signin = function(req, res) {
     }, function(err, user) {
         if (err) {
             console.log(err);
+            return res.redirect('/signup');
         }
         if (!user) {
-            return res.redirect('/');
+            return res.redirect('/signin');
         }
         user.comparePassword(password, function(err, isMatch) {
             if (err) {
                 console.log(err);
+                return res.redirect('/signup');
             }
             if (isMatch) {
                 //登录匹配成功之后，编辑session，记录会话状态 
@@ -44,12 +46,24 @@ exports.signin = function(req, res) {
 
 };
 
+exports.showSignin = function(req, res) {
+    res.render('signin', {
+        title: '登录页面'
+    });
+};
+
+exports.showSignup = function(req, res) {
+    res.render('signup', {
+        title: '注册页面'
+    });
+};
+
 //signout
 //登出需要删除session信息，同时还需删除本地locals的信息，不然进入首页的本地信息一直还在
 exports.logout = function(req, res) {
     delete req.session.user;
     //delete app.locals.user;
-    res.redirect('/');
+    res.redirect('/signin');
 };
 
 
