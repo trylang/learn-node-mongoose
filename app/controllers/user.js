@@ -8,8 +8,20 @@ exports.signup = function(req, res) {
         if (err) {
             console.log(err);
         }
-        res.redirect('/admin/userlist');
+        User.findOne({
+            name: _user.name
+        }, function(err, user) {
+            if (err) {
+                console.log(err);
+            } else {
+                req.session.user = user;
+                res.redirect('/admin/userlist');
+
+            }
+        });
+
     });
+
 };
 
 //signin
@@ -40,6 +52,7 @@ exports.signin = function(req, res) {
                 return res.redirect('/');
             } else {
                 console.log('Password is not matched');
+                return res.redirect("/signin");
             }
         });
     });
