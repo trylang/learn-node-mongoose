@@ -15,7 +15,7 @@ exports.signup = function(req, res) {
                 console.log(err);
             } else {
                 req.session.user = user;
-                res.redirect('/admin/userlist');
+                res.redirect('/admin/user/list');
 
             }
         });
@@ -71,6 +71,21 @@ exports.showSignup = function(req, res) {
     });
 };
 
+exports.signinRequired = function(req, res, next) {
+    var user = req.session.user;
+    if (!user) {
+        return res.redirect('/signin');
+    }
+    next();
+};
+exports.adminRequired = function(req, res, next) {
+    var user = req.session.user;
+    if (user.role <= 10 || !user.role) {
+        return res.redirect('/signin');
+    }
+    next();
+};
+
 //signout
 //登出需要删除session信息，同时还需删除本地locals的信息，不然进入首页的本地信息一直还在
 exports.logout = function(req, res) {
@@ -82,6 +97,22 @@ exports.logout = function(req, res) {
 
 //用户列表
 exports.list = function(req, res) {
+    //在这里处理角色问题，就很低效了，每个地方都需要添加重复的代码，这时就需使用中间件了。
+    // var user = req.session.user;
+    // if (!user) {
+    //     return res.redirect('/signin');
+    // }
+    // if (user.role > 10) {
+    //     User.fetch(function(err, users) {
+    //         if (err) {
+    //             console.log(err);
+    //         }
+    //         res.render('userlist', {
+    //             title: '用户列表页',
+    //             users: users
+    //         });
+    //     });
+    // }
     User.fetch(function(err, users) {
         if (err) {
             console.log(err);
@@ -91,4 +122,5 @@ exports.list = function(req, res) {
             users: users
         });
     });
+
 };

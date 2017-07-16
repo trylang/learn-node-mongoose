@@ -1,6 +1,8 @@
 var Index = require('../app/controllers/index');
 var Movie = require('../app/controllers/movie');
 var User = require('../app/controllers/user');
+var Comment = require('../app/controllers/comment');
+var Category = require('../app/controllers/category');
 
 //注入其他插件
 var _ = require('underscore');
@@ -29,14 +31,26 @@ module.exports = function(app) {
     app.get('/signin', User.showSignin);
     app.get('/signup', User.showSignup);
     app.get('/logout', User.logout);
-    app.get('/admin/userlist', User.list);
+    //添加 User.signinRequired,User.adminRequired, 俩中间件，第一个用于确认用户已登录，第二个用于判断用户的角色以便分配权限
+    app.get('/admin/user/list', User.signinRequired, User.adminRequired, User.list);
 
     //Movie
     app.get('/movie/:id', Movie.detail);
-    app.get('/admin/movie', Movie.admin);
-    app.post('/admin/movie/new', Movie.new);
-    app.get('/admin/update/:id', Movie.update);
-    app.get('/admin/list', Movie.list);
-    app.delete('/admin/list', Movie.delete);
+    app.post('/admin/movie', User.signinRequired, User.adminRequired, Movie.save);
+    app.get('/admin/movie/new', User.signinRequired, User.adminRequired, Movie.new);
+    app.get('/admin/movie/update/:id', User.signinRequired, User.adminRequired, Movie.update);
+    app.get('/admin/movie/list', User.signinRequired, User.adminRequired, Movie.list);
+    app.delete('/admin/movie/list', User.signinRequired, User.adminRequired, Movie.delete);
+
+    //Comment
+    app.post('/user/comment', User.signinRequired, Comment.save);
+
+    //Category
+    app.post('/admin/category', User.signinRequired, User.adminRequired, Category.save);
+    app.get('/admin/category/new', User.signinRequired, User.adminRequired, Category.new);
+    app.get('/admin/category/list', User.signinRequired, User.adminRequired, Category.list);
+
+    //results
+    app.get('/results', Index.search);
 
 };

@@ -3,9 +3,31 @@ extend ../layout
 block content
 	.container
 		.row
-			form.form-horizontal(method="post",action="/admin/movie/new")
-				//- 隐藏输入框，作为更新页标志用
-				input(type="hidden",name="movie[_id]",value=movie._id)
+			form.form-horizontal(method="post",action="/admin/movie",style="height:800px;")
+				if movie._id
+					//- 隐藏输入框，作为更新页标志用
+					input(type="hidden",name="movie[_id]",value=movie._id)
+				.form-group
+					label.col-sm-2.control-label 豆瓣同步
+					.col-sm-10
+						input#douban.form-control(type="text")
+				.form-group
+					label.col-sm-2.control-label(for="inputCategory") 电影分类
+					.col-sm-10
+						//- 踩坑地点：input里的name（categoryName）必须与value里面的categoryName必须一致，否则提交处理
+						input#inputCategory.form-control(type="text",name="movie[categoryName]",value=movie.categoryName)
+				.form-group
+					label.col-sm-2.control-label(for="inputCategory") 分类选择			
+					each cat in categories
+						label.radio-inline
+							//- 有movie._id说明是更新,且在pug中if，else不能用花括号括起来使用
+							if movie._id
+								input(type="radio",name="movie[category]",value=cat._id,checked=cat._id.toString()==movie.category.toString())
+								|	#{cat.name}
+							else
+								input(type="radio",name="movie[category]",value=cat._id) 
+								|	#{cat.name}
+														
 				.form-group
 					label.col-sm-2.control-label(for="inputTitle") 电影名字
 					.col-sm-10
@@ -41,9 +63,7 @@ block content
 				.form-group
 					label.col-sm-offset-2.control-sm-10
 					button.btn.btn-default(type="submit") 录入
-						
-
-
+	script(src="/js/admin.js")
 
 
 
