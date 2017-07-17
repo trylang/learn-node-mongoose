@@ -3,7 +3,8 @@ extend ../layout
 block content
 	.container
 		.row
-			form.form-horizontal(method="post",action="/admin/movie",style="height:800px;")
+			//enctype属性为了提交表单时分割属性，可以不同类型数据的提交，需要使用到express.multipart中间件，在app中添加
+			form.form-horizontal(method="post", enctype="multipart/form-data" action="/admin/movie",style="height:800px;")
 				if movie._id
 					//- 隐藏输入框，作为更新页标志用
 					input(type="hidden",name="movie[_id]",value=movie._id)
@@ -48,6 +49,10 @@ block content
 					label.col-sm-2.control-label(for="inputPoster") 海报地址
 					.col-sm-10
 						input#inputPoster.form-control(type="text",name="movie[poster]",value=movie.poster)
+				.form-group
+					label.col-sm-2.control-label(for="uploadPoster") 上传海报
+					.col-sm-10
+						input#inputPoster.form-control(type="file",name="uploadPoster")
 				.form-group
 					label.col-sm-2.control-label(for="inputFlash") 片源地址
 					.col-sm-10

@@ -15,7 +15,11 @@ block content
 								.col-md-2
 									.thumbnail
 										a(href="/movie/"+item._id)
-											img(src=item.poster,alt=item.title)
+											//- 有http开头则为获取到的路径，否则为上传图片，路径在本地upload路径下
+											if item.poster.indexOf('http:')>-1
+												img(src=item.poster,alt=item.title)
+											else 
+												img(src='/upload/'+item.poster,alt=item.title)
 										.caption
 											h3 #{item.title}
 											p: a.btn.btn-primary(href="/movie/" + item._id,role="button") 观看预告片

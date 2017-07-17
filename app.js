@@ -29,6 +29,10 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+//图片上传处理enctype多数据类型上传问题,这里需要npm下载中间件
+var multipart = require('connect-multiparty');
+app.use(multipart());
+
 //设置登录状态持久性
 var cookieParser = require('cookie-parser');
 var session = require('express-session');

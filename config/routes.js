@@ -36,7 +36,8 @@ module.exports = function(app) {
 
     //Movie
     app.get('/movie/:id', Movie.detail);
-    app.post('/admin/movie', User.signinRequired, User.adminRequired, Movie.save);
+    //添加Movie.savePoster中间件，是因为图片上传必须在save动作之前上传完，为了严格保证图片上传成功，所以用到中间件
+    app.post('/admin/movie', User.signinRequired, User.adminRequired, Movie.savePoster, Movie.save);
     app.get('/admin/movie/new', User.signinRequired, User.adminRequired, Movie.new);
     app.get('/admin/movie/update/:id', User.signinRequired, User.adminRequired, Movie.update);
     app.get('/admin/movie/list', User.signinRequired, User.adminRequired, Movie.list);
