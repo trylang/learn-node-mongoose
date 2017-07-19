@@ -14,9 +14,51 @@ module.exports = function(grunt) {
                 options: {
                     livereload: true
                 }
+            },
+            uglify: {
+                files: ['public/**/*.js'],
+                tasks: ['jshint'],
+                options: {
+                    livereload: true
+                }
+            },
+            styles: {
+                files: ['public/**/*.js'],
+                tasks: ['less'],
+                options: {
+                    npspawn: true
+                }
             }
         },
-
+        jshint: {
+            options: {
+                jshint: '.jshintrc',
+                ignores: ['public/libs/**/*.js']
+            },
+            all: ['public/js/*.js', 'test/**/*.js', 'app/**/*.js']
+        },
+        less: {
+            development: {
+                options: {
+                    compress: true,
+                    yuicompress: true,
+                    optimization: 2
+                },
+                files: {
+                    'public/build/index.css': 'public/less/index.less'
+                }
+            }
+        },
+        uglify: {
+            development: {
+                files: {
+                    'public/build/admin.min.js': 'public/js/admin.js',
+                    'public/build/detail.min.js': [
+                        'public/js/detail.js'
+                    ]
+                }
+            }
+        },
         nodemon: {
             dev: {
                 script: 'app.js',
@@ -43,7 +85,7 @@ module.exports = function(grunt) {
         },
 
         concurrent: {
-            tasks: ['nodemon', 'watch'],
+            tasks: ['nodemon', 'watch', 'uglify', 'jshint'],
             options: {
                 logConcurrentOutput: true
             }
@@ -54,6 +96,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-concurrent');
     grunt.loadNpmTasks('grunt-mocha-test'); //第一步：加载测试组件
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
     grunt.option('force', true); //遇见bug继续编译
     grunt.registerTask('default', ['concurrent']);
